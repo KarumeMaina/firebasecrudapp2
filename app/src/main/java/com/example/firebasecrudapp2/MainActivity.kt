@@ -3,45 +3,30 @@ package com.example.firebasecrudapp2
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.firebasecrudapp2.ui.theme.Firebasecrudapp2Theme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.firebasecrudapp2.userinterface.LoginScreen
+import com.example.firebasecrudapp2.userinterface.RegisterScreen
+//import com.example.firebasecrudapp2.ui.RegisterScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            Firebasecrudapp2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            var showLoginScreen by remember { mutableStateOf(false) }
+
+            if (showLoginScreen) {
+                LoginScreen(onLoginSuccess = {
+                    // Handle successful login
+                })
+            } else {
+                RegisterScreen(onRegistrationSuccess = {
+                    // Handle successful registration
+                    showLoginScreen = true
+                })
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Firebasecrudapp2Theme {
-        Greeting("Android")
     }
 }

@@ -1,6 +1,5 @@
 package com.example.firebasecrudapp2.userinterface
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material3.Button
@@ -15,17 +14,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.firebasecrudapp2.viewModel.UserViewModel
+//import com.example.firebasecrudapp2.viewmodel.UserViewModel
 
 @Composable
-fun RegisterScreen(
+fun LoginScreen(
     userViewModel: UserViewModel = viewModel(),
-    onRegistrationSuccess: () -> Unit
+    onLoginSuccess: () -> Unit
 ) {
-    // State variables for user input
-    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -33,13 +32,6 @@ fun RegisterScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -51,43 +43,35 @@ fun RegisterScreen(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Checkbox(checked = showPassword, onCheckedChange = { showPassword = it })
+            Text(text = "Show Password")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                if (password == confirmPassword) {
-                    userViewModel.registerUser(name, email, password) { isSuccess ->
-                        if (isSuccess) {
-                            onRegistrationSuccess()
-                        }
+                userViewModel.loginUser(email, password) { success, message ->
+                    if (success) {
+                        onLoginSuccess()
+                    } else {
+                        errorMessage = message ?: "An unknown error occurred"
                     }
-                } else {
-                    userViewModel.registrationState.value = "Failed: Passwords do not match"
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Register")
+            Text("Login")
         }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Observe registration state
-        val registrationState = userViewModel.registrationState.value
-        if (registrationState != null) {
-            Text(
-                text = registrationState,
-                color = if (registrationState == "Success") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-            )
+        Spacer(modifier = Modifier.height(8.dp))
+        if (errorMessage.isNotEmpty()) {
+            Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
         }
     }
 }
